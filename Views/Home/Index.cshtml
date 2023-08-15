@@ -1,0 +1,70 @@
+﻿@model IEnumerable<ToDo>
+ <div class="row">
+      <div class="col-md-2">
+          <form asp-action="Filter" method="post">
+              <div class="mb-3">
+                  <label class="form-label">Category</label>
+                  <select name="filter" class="form-select"
+                    asp-items="@(new SelectList(ViewBag.categories,"categoryID","categoryName",ViewBag.Filters.categoryID))">
+                    <option value="all">All</option>
+                  </select>
+              </div>
+
+              <div class="mb-3">
+                  <label class="form-label">Due</label>
+                  <select name="filter" class="form-select"
+                    asp-items="@(new SelectList(ViewBag.dueFilters,"Key","Value",ViewBag.Filters.due))">
+                    <option value="all">All</option>
+                  </select>
+              </div>
+
+              <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <select name="filter" class="form-select"
+                     asp-items="@(new SelectList(ViewBag.statuses,"statusID","statusName",ViewBag.Filters.statusID))">
+                      <option value="all">All</option>
+                  </select>
+              </div>
+              <button type="submit" class="btn btn-primary">Filter</button>
+              <a asp-action="Index" asp-route-id="" class="btn btn-primary">Clear</a>
+          </form>
+      </div>
+
+     <div class="col-md-10">
+         <form asp-action="markComplete" method="post" asp-route-id="@ViewBag.Filters.filterString">
+             <table class="table table-bordered table-striped mt-2">
+                 <thead>
+                     <tr>
+                         <th>Description</th>
+                         <th>Category</th>
+                         <th>Due Data</th>
+                         <th>Status</th>
+                         <th class="w-25"></th>
+                     </tr>
+                 </thead>
+                 <tbody>
+                     @foreach(ToDo task in Model) { 
+                         string overdue = task.overDate ? "bg-warning" : "";
+                         <tr>
+                             <td>@task.Description</td>
+                             <td>@task.category.categoryName</td>
+                             <td class="@overdue">@task.dueDate?.ToShortDateString()</td>
+                             <td class="@overdue">@task.status.statusName</td>
+                             <td>
+                                 @if (task.statusID == "open") { 
+                                    <button type="submit" class="btn btn-primary btn-sm"
+                                            name="@nameof(ToDo.ID)" value="@task.ID">Mark Completed</button>
+                                 }
+                             </td>
+                         </tr>
+                     }
+                 </tbody>
+             </table> 
+         </form>
+
+         <form asp-action="deleteComplete" method="post" asp-route-id="@ViewBag.Filters.filterString">
+             <a asp-action="Add" class="btn btn-primary"> Add New Task </a>
+             <button type="submit" class="btn btn-primary"> Delete Completed Tasks</button>
+         </form>
+     </div>
+  </div>
